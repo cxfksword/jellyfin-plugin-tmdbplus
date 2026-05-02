@@ -23,8 +23,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
 {
     public class SeriesProvider : BaseProvider, IRemoteMetadataProvider<Series, SeriesInfo>
     {
-        public SeriesProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<SeriesProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public SeriesProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<SeriesProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
         }
 
@@ -97,7 +97,9 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
                 HasMetadata = true,
             };
 
-            foreach (var person in GetPersons(tvShow))
+            var persons = GetPersons(tvShow).ToList();
+            persons = await TranslateCharacterRolesAsync(persons, result.Item.Name ?? string.Empty, result.Item.ProductionYear, cancellationToken).ConfigureAwait(false);
+            foreach (var person in persons)
             {
                 result.AddPerson(person);
             }

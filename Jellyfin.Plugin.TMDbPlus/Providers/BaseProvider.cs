@@ -1,6 +1,8 @@
+using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.TMDbPlus.Api;
 using Jellyfin.Plugin.TMDbPlus.Configuration;
 using Jellyfin.Plugin.TMDbPlus.Core;
+using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Providers;
@@ -32,6 +34,7 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
         protected readonly TmdbApi _tmdbApi;
         protected readonly ILibraryManager _libraryManager;
         protected readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly AiTranslationApi _aiTranslationApi;
 
         protected Regex regSeasonNameSuffix = new Regex(@"\s第[0-9一二三四五六七八九十]+?季$|\sSeason\s\d+?$|(?<![0-9a-zA-Z])\d$", RegexOptions.Compiled);
         protected Regex regTmdbIdAttribute = new Regex(@"\[(?:tmdb|tmdbid)-(\d+?)\]", RegexOptions.Compiled);
@@ -44,13 +47,14 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
             }
         }
 
-        protected BaseProvider(IHttpClientFactory httpClientFactory, ILogger logger, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
+        protected BaseProvider(IHttpClientFactory httpClientFactory, ILogger logger, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
         {
             this._tmdbApi = tmdbApi;
             this._libraryManager = libraryManager;
             this._logger = logger;
             this._httpClientFactory = httpClientFactory;
             this._httpContextAccessor = httpContextAccessor;
+            this._aiTranslationApi = aiTranslationApi;
         }
 
         protected async Task<TMDbLib.Objects.Search.TvSeasonEpisode?> GetEpisodeAsync(int seriesTmdbId, int? seasonNumber, int? episodeNumber, string displayOrder, string? language, string? imageLanguages, CancellationToken cancellationToken)
@@ -458,6 +462,45 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
         protected string RemoveSeasonSuffix(string name)
         {
             return regSeasonNameSuffix.Replace(name, "");
+        }
+
+        protected async Task<List<PersonInfo>> TranslateCharacterRolesAsync(
+            List<PersonInfo> persons,
+            string title,
+            int? year,
+            CancellationToken cancellationToken)
+        {
+            if (!config.EnableAiTranslateCharacter)
+            {
+                return persons;
+            }
+
+            var actorsWithRole = persons
+                .Where(p => p.Type == PersonKind.Actor && !string.IsNullOrWhiteSpace(p.Role))
+                .ToList();
+
+            if (actorsWithRole.Count == 0)
+            {
+                return persons;
+            }
+
+            var roleNames = actorsWithRole.Select(p => p.Role!).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            var translations = await _aiTranslationApi.TranslateCharacterNamesAsync(title, year, roleNames, cancellationToken).ConfigureAwait(false);
+
+            if (translations.Count == 0)
+            {
+                return persons;
+            }
+
+            foreach (var person in actorsWithRole)
+            {
+                if (!string.IsNullOrWhiteSpace(person.Role) && translations.TryGetValue(person.Role, out var chineseName))
+                {
+                    person.Role = chineseName;
+                }
+            }
+
+            return persons;
         }
     }
 }
