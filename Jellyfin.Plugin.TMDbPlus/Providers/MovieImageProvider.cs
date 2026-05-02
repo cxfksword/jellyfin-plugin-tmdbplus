@@ -19,8 +19,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
 {
     public class MovieImageProvider : BaseProvider, IRemoteImageProvider
     {
-        public MovieImageProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<MovieImageProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public MovieImageProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<MovieImageProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
         }
 

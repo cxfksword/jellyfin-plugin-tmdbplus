@@ -24,8 +24,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
 {
     public class MovieProvider : BaseProvider, IRemoteMetadataProvider<Movie, MovieInfo>
     {
-        public MovieProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<MovieProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public MovieProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<MovieProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
         }
 
@@ -135,7 +135,9 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
                 movie.AddGenre(genre);
             }
 
-            foreach (var person in GetPersons(movieResult))
+            var persons = GetPersons(movieResult).ToList();
+            persons = await TranslateCharacterRolesAsync(persons, movie.Name ?? string.Empty, movie.ProductionYear, cancellationToken).ConfigureAwait(false);
+            foreach (var person in persons)
             {
                 result.AddPerson(person);
             }

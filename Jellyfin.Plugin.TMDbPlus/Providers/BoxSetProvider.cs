@@ -23,8 +23,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
     /// </summary>
     public class BoxSetProvider : BaseProvider, IRemoteMetadataProvider<BoxSet, BoxSetInfo>
     {
-        public BoxSetProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<BoxSetProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public BoxSetProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<BoxSetProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
         }
 
