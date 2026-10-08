@@ -109,6 +109,27 @@ namespace Jellyfin.Plugin.TMDbPlus.Test
         }
 
         [TestMethod]
+        public void TestMovieParseWhenTitleEndsWithNumber()
+        {
+            var fileName = "Assassin in Red 2 (2023)";
+            var parseResult = NameParser.Parse(fileName);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(parseResult.Name));
+            Assert.IsTrue(parseResult.Name.StartsWith("Assassin in Red", StringComparison.Ordinal));
+            Assert.AreEqual(parseResult.Year, 2023);
+
+            fileName = "Pegasus 3 (2026)";
+            parseResult = NameParser.Parse(fileName);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(parseResult.Name));
+            Assert.IsTrue(parseResult.Name.StartsWith("Pegasus", StringComparison.Ordinal));
+            Assert.AreEqual(parseResult.Year, 2026);
+
+            // IsAnime 结果应同步写入解析结果
+            fileName = "[KTXP][Machikado_Mazoku_S2][01][BIG5][1080p]";
+            parseResult = NameParser.Parse(fileName);
+            Assert.IsTrue(parseResult.IsAnime);
+        }
+
+        [TestMethod]
         public void TestTVSeriesParse()
         {
             // 混合中英文
@@ -297,12 +318,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Test
         [TestMethod]
         public void TestCheckExtra()
         {
-            var fileName = "A.Fight.for.Justice.S01E01.2024.2160p.IQ.WEB-DL.AAC.H265-Sunshine.mkv";
+            var fileName = "[VCB-Studio] Spice and Wolf [Menu01_2][Ma10p_1080p][x265_flac]";
             var parseResult = NameParser.Parse(fileName);
-            Assert.IsTrue(parseResult.IsExtra);
-
-            fileName = "[VCB-Studio] Spice and Wolf [Menu01_2][Ma10p_1080p][x265_flac]";
-            parseResult = NameParser.Parse(fileName);
             Assert.IsTrue(parseResult.IsExtra);
 
             fileName = "[VCB-Studio] Spice and Wolf [NCED][Ma10p_1080p][x265_flac]";

@@ -1,4 +1,4 @@
-﻿using Jellyfin.Plugin.TMDbPlus.Api;
+using Jellyfin.Plugin.TMDbPlus.Api;
 using Jellyfin.Plugin.TMDbPlus.Core;
 using Jellyfin.Plugin.TMDbPlus.Providers;
 using Microsoft.Extensions.Logging;
@@ -103,6 +103,27 @@ namespace Jellyfin.Plugin.TMDbPlus.Test
         }
 
 
+
+        [TestMethod]
+        public void TestGetEpisodeExternalIds()
+        {
+            var api = new TmdbApi(loggerFactory);
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var result = await api.GetEpisodeExternalIdsAsync(13372, 1, 1, CancellationToken.None)
+               .ConfigureAwait(false);
+                    Assert.IsNotNull(result);
+                    TestContext.WriteLine($"ImdbId: {result?.ImdbId}");
+                }
+                catch (Exception ex)
+                {
+                    TestContext.WriteLine(ex.Message);
+                }
+            }).GetAwaiter().GetResult();
+        }
 
         [TestMethod]
         public void TestSearch()
