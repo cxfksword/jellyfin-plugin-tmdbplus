@@ -59,16 +59,16 @@ def main():
     manifest[0]['versions'] = list(filter(lambda x: x['version'] != f"{version}.0", manifest[0]['versions']))
     manifest[0]['versions'].insert(0, generate_version(filepath, version, changelog))
 
-    with open('manifest.json', 'w') as f:
-        json.dump(manifest, f, indent=2)
+    with open('manifest.json', 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
 
     # # 国内加速
     cn_domain = 'https://ghfast.top/'
     if 'CN_DOMAIN' in os.environ and os.environ["CN_DOMAIN"]:
         cn_domain = os.environ["CN_DOMAIN"]
     cn_domain = cn_domain.rstrip('/')
-    with open('manifest_cn.json', 'w') as f:
-        manifest_cn = json.dumps(manifest, indent=2)
+    with open('manifest_cn.json', 'w', encoding='utf-8') as f:
+        manifest_cn = json.dumps(manifest, indent=2, ensure_ascii=False)
         manifest_cn = re.sub('https://github.com', f'{cn_domain}/https://github.com', manifest_cn)
         f.write(manifest_cn)
 
