@@ -1,4 +1,4 @@
-﻿using Jellyfin.Plugin.TMDbPlus.Api;
+using Jellyfin.Plugin.TMDbPlus.Api;
 using Jellyfin.Plugin.TMDbPlus.Core;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
@@ -113,6 +113,29 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
             item.Name = episodeResult.Name;
             item.Overview = episodeResult.Overview;
             item.CommunityRating = (float)System.Math.Round(episodeResult.VoteAverage, 1);
+
+            // 获取单集 imdb id（TMDB 外部 ID 轻量端点，用于写入 NFO 的 <imdbid>）
+            if (episodeResult.SeasonNumber >= 0 && episodeResult.EpisodeNumber > 0)
+            {
+                try
+                {
+                    var ids = await this._tmdbApi.GetEpisodeExternalIdsAsync(
+                        seriesTmdbId.ToInt(),
+                        episodeResult.SeasonNumber,
+                        episodeResult.EpisodeNumber,
+                        cancellationToken).ConfigureAwait(false);
+                    var imdbId = ids?.ImdbId;
+                    if (!string.IsNullOrEmpty(imdbId))
+                    {
+                        item.SetProviderId(MetadataProvider.Imdb, imdbId);
+                        this.Log("Set episode imdb id: {0} (season: {1} episode: {2})", imdbId, episodeResult.SeasonNumber, episodeResult.EpisodeNumber);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.Log("获取单集 imdb id 失败. error: {0}", ex.Message);
+                }
+            }
 
             result.Item = item;
 

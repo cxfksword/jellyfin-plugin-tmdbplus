@@ -74,6 +74,13 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
                 tmdbId = await this.GuestByTmdbAsync(info, cancellationToken).ConfigureAwait(false);
             }
 
+            // 文件名中用户显式指定的[tmdbid-xxx]优先级最高，已有tmdbId不应被覆盖
+            var attrTmdbId = this.GetTmdbIdByFileNameAttribute(fileName);
+            if (!string.IsNullOrEmpty(attrTmdbId))
+            {
+                tmdbId = attrTmdbId;
+            }
+
             if (string.IsNullOrEmpty(tmdbId))
             {
                 this.Log("Match failed for movie [name]: {0} [year]: {1}", info.Name, info.Year);
@@ -113,7 +120,10 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
             };
 
             movie.SetProviderId(MetadataProvider.Tmdb, tmdbId);
-            movie.SetProviderId(MetadataProvider.Imdb, movieResult.ImdbId);
+            if (!string.IsNullOrEmpty(movieResult.ImdbId))
+            {
+                movie.SetProviderId(MetadataProvider.Imdb, movieResult.ImdbId);
+            }
 
             if (movieResult.BelongsToCollection != null)
             {

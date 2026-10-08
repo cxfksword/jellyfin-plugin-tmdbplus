@@ -33,7 +33,7 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
         protected readonly ILibraryManager _libraryManager;
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        protected Regex regSeasonNameSuffix = new Regex(@"\s第[0-9一二三四五六七八九十]+?季$|\sSeason\s\d+?$|(?<![0-9a-zA-Z])\d$", RegexOptions.Compiled);
+        protected Regex regSeasonNameSuffix = new Regex(@"\s第[0-9一二三四五六七八九十]+?季$|\sSeason\s\d+?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         protected Regex regTmdbIdAttribute = new Regex(@"\[(?:tmdb|tmdbid)-(\d+?)\]", RegexOptions.Compiled);
 
         protected PluginConfiguration config
@@ -104,13 +104,28 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
             return await this._httpClientFactory.CreateClient().GetAsync(new Uri(url), cancellationToken).ConfigureAwait(false);
         }
 
-        protected async Task<string?> GuestByTmdbAsync(ItemLookupInfo info, CancellationToken cancellationToken)
+        /// <summary>
+        /// 从文件名属性格式获取用户显式指定的tmdbId，如[tmdb-12345]或[tmdbid-12345]，用户指定值优先级最高
+        /// </summary>
+        protected string? GetTmdbIdByFileNameAttribute(string? fileName)
         {
-            var fileName = GetOriginalFileName(info);
-            var tmdbId = this.regTmdbIdAttribute.FirstMatchGroup(fileName);
+            var tmdbId = this.regTmdbIdAttribute.FirstMatchGroup(fileName ?? string.Empty);
             if (!string.IsNullOrWhiteSpace(tmdbId))
             {
                 this.Log("Found tmdb [id] by attr: {0}", tmdbId);
+                return tmdbId;
+            }
+
+            return null;
+        }
+
+        protected async Task<string?> GuestByTmdbAsync(ItemLookupInfo info, CancellationToken cancellationToken)
+        {
+            var fileName = GetOriginalFileName(info);
+            // 从文件名属性格式获取，如[tmdb-12345]或{tmdb-12345}
+            var tmdbId = this.GetTmdbIdByFileNameAttribute(fileName);
+            if (!string.IsNullOrWhiteSpace(tmdbId))
+            {
                 return tmdbId;
             }
 
@@ -264,16 +279,15 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
                 }
             }
 
-            regSeason = new Regex(@"(?<![a-z])S(\d\d?)(?![0-9a-z])", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            match = regSeason.Match(fileName);
-            if (match.Success && match.Groups.Count > 1)
+            // SXX / Season XX 季名
+            // 支持 "S01", "S1", "Season 1", "Season01", "Season_01" 等格式
+            var parentPath = Path.GetDirectoryName(path);
+            var seasonResult = Emby.Naming.TV.SeasonPathParser.Parse(path, parentPath, true, true);
+            if (seasonResult.SeasonNumber.HasValue && seasonResult.SeasonNumber > 0)
             {
-                var seasonNumber = match.Groups[1].Value.ToInt();
-                if (seasonNumber > 0)
-                {
-                    this.Log("Found season number of filename: {0} seasonNumber: {1}", fileName, seasonNumber);
-                    return seasonNumber;
-                }
+                var seasonNumber = seasonResult.SeasonNumber.Value;
+                this.Log("Found season number of filename: {0} seasonNumber: {1}", fileName, seasonNumber);
+                return seasonNumber;
             }
 
             var seasonNameMap = new Dictionary<string, int>() {

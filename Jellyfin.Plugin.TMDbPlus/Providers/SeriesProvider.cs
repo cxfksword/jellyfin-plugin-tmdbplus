@@ -67,6 +67,13 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
                 tmdbId = await this.GuestByTmdbAsync(info, cancellationToken).ConfigureAwait(false);
             }
 
+            // 文件名中用户显式指定的[tmdbid-xxx]优先级最高，已有tmdbId不应被覆盖
+            var attrTmdbId = this.GetTmdbIdByFileNameAttribute(fileName);
+            if (!string.IsNullOrEmpty(attrTmdbId))
+            {
+                tmdbId = attrTmdbId;
+            }
+
             if (string.IsNullOrEmpty(tmdbId))
             {
                 this.Log("Match failed for series [name]: {0} [year]: {1}", info.Name, info.Year);

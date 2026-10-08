@@ -1,4 +1,4 @@
-﻿using Jellyfin.Plugin.TMDbPlus.Api;
+using Jellyfin.Plugin.TMDbPlus.Api;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
@@ -55,7 +55,7 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
             var seasonNumber = episode.ParentIndexNumber;
             var episodeNumber = episode.IndexNumber;
 
-            if (seasonNumber is null or 0 || episodeNumber is null or 0)
+            if (seasonNumber is null || episodeNumber is null or 0)
             {
                 this.Log($"[GetEpisodeImages] The seasonNumber or episodeNumber is empty! seasonNumber: {seasonNumber} episodeNumber: {episodeNumber}");
                 return Enumerable.Empty<RemoteImageInfo>();

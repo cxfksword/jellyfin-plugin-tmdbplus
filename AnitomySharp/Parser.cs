@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2014-2017, Eren Okka
  * Copyright (c) 2016-2017, Paul Miller
  * Copyright (c) 2017-2018, Tyler Bratton
@@ -395,7 +395,14 @@ namespace AnitomySharp
                 tokenEnd = Token.FindToken(Tokens, tokenBegin, Tokens.Count, Token.TokenFlag.FlagBracket, Token.TokenFlag.FlagIdentifier);
 
                 // Ignore if it's only a dash
-                if (tokenEnd - tokenBegin <= 2 && ParserHelper.IsDashCharacter(Tokens[tokenBegin].Content[0])) continue;
+                if (tokenEnd - tokenBegin <= 2)
+                {
+                    var tokenContent = Tokens[tokenBegin].Content;
+                    if (!string.IsNullOrEmpty(tokenContent) && ParserHelper.IsDashCharacter(tokenContent[0]))
+                    {
+                        continue;
+                    }
+                }
                 //if (tokenBegin.Pos == null || tokenEnd.Pos == null) continue;
                 ParseHelper.BuildElement(Element.ElementCategory.ElementEpisodeTitle, false, Tokens.GetRange(tokenBegin, tokenEnd - tokenBegin));
                 return;
