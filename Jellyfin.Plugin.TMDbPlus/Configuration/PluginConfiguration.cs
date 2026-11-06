@@ -48,6 +48,29 @@ public class PluginConfiguration : BasePluginConfiguration
     public string TmdbProxyHost { get; set; } = string.Empty;
 
 
+    /// <summary>
+    /// 启用AI翻译角色名
+    /// </summary>
+    public bool EnableAiTranslateCharacter { get; set; } = false;
+    /// <summary>
+    /// AI接口BaseUrl（OpenAI兼容）
+    /// </summary>
+    public string AiBaseUrl { get; set; } = string.Empty;
+    /// <summary>
+    /// AI接口ApiKey
+    /// </summary>
+    public string AiApiKey { get; set; } = string.Empty;
+    /// <summary>
+    /// AI模型名称
+    /// </summary>
+    public string AiModel { get; set; } = string.Empty;
+    /// <summary>
+    /// 自定义翻译Prompt（留空使用默认）
+    /// </summary>
+    public string AiTranslatePrompt { get; set; } = string.Empty;
+
+    public const string DEFAULT_AI_TRANSLATE_PROMPT = "下面是影片 {{title}}({{year}}) 每个角色的英文名，每行一个，帮我翻译为对应角色的中文名，输出格式：英文角色名:中文角色名，输出格式也保持每行一个角色名，不需要添加其他说明文字，假如没找到对应的中文角色名，该角色就不需要输出，不要自行直接翻译";
+
     public IWebProxy GetTmdbWebProxy()
     {
 

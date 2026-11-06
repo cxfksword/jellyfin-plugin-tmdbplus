@@ -3,6 +3,7 @@ using MediaBrowser.Controller;
 using MediaBrowser.Controller.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net.Http;
 
 namespace Jellyfin.Plugin.TMDbPlus
 {
@@ -15,6 +16,10 @@ namespace Jellyfin.Plugin.TMDbPlus
             serviceCollection.AddSingleton((ctx) =>
             {
                 return new TmdbApi(ctx.GetRequiredService<ILoggerFactory>());
+            });
+            serviceCollection.AddSingleton((ctx) =>
+            {
+                return new AiTranslationApi(ctx.GetRequiredService<ILoggerFactory>(), ctx.GetRequiredService<IHttpClientFactory>());
             });
         }
     }

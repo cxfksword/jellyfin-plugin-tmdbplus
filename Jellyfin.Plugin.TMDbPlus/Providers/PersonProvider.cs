@@ -19,8 +19,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
 {
     public class PersonProvider : BaseProvider, IRemoteMetadataProvider<Person, PersonLookupInfo>
     {
-        public PersonProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<PersonProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public PersonProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<PersonProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
         }
 

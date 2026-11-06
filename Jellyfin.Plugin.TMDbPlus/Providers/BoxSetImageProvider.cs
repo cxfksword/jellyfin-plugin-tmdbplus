@@ -24,8 +24,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
     /// </summary>
     public class BoxSetImageProvider : BaseProvider, IRemoteImageProvider
     {
-        public BoxSetImageProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<BoxSetImageProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public BoxSetImageProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<BoxSetImageProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
         }
 

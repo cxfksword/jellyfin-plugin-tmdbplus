@@ -22,8 +22,8 @@ namespace Jellyfin.Plugin.TMDbPlus.Providers
     {
         private readonly IMemoryCache _memoryCache;
 
-        public EpisodeProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi)
-            : base(httpClientFactory, loggerFactory.CreateLogger<EpisodeProvider>(), libraryManager, httpContextAccessor, tmdbApi)
+        public EpisodeProvider(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, ILibraryManager libraryManager, IHttpContextAccessor httpContextAccessor, TmdbApi tmdbApi, AiTranslationApi aiTranslationApi)
+            : base(httpClientFactory, loggerFactory.CreateLogger<EpisodeProvider>(), libraryManager, httpContextAccessor, tmdbApi, aiTranslationApi)
         {
             this._memoryCache = new MemoryCache(new MemoryCacheOptions());
         }

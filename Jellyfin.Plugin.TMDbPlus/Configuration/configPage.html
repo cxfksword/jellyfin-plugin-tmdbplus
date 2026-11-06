@@ -67,11 +67,37 @@
                                 pattern="[0-9]*" min="1" max="65535" class="emby-input">
                         </div>
                     </fieldset>
+                    <fieldset class="verticalSection verticalSection-extrabottompadding">
+                        <legend>
+                            <h3>AI翻译角色名</h3>
+                        </legend>
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label class="emby-checkbox-label" for="EnableAiTranslateCharacter">
+                                <input id="EnableAiTranslateCharacter" name="EnableAiTranslateCharacter" type="checkbox" is="emby-checkbox" />
+                                <span>启用AI翻译角色名（将演员的英文角色名翻译为中文）</span>
+                            </label>
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="AiBaseUrl">OpenAI兼容接口 Base URL</label>
+                            <input id="AiBaseUrl" name="AiBaseUrl" type="text" is="emby-input" placeholder="https://api.openai.com/v1" />
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="AiApiKey">API Key</label>
+                            <input id="AiApiKey" name="AiApiKey" type="text" is="emby-input" />
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="AiModel">模型名称</label>
+                            <input id="AiModel" name="AiModel" type="text" is="emby-input" placeholder="gpt-3.5-turbo" />
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="AiTranslatePrompt">自定义翻译 Prompt（留空使用默认）</label>
+                            <textarea id="AiTranslatePrompt" name="AiTranslatePrompt" rows="4" style="width:100%;box-sizing:border-box;" placeholder="下面是影片 {{title}}({{year}}) 每个角色的英文名，每行一个，帮我翻译为对应角色的中文名，输出格式：英文角色名:中文角色名，输出格式也保持每行一个角色名，不需要添加其他说明文字，假如没找到对应的中文角色名，该角色就不需要输出，不要自行直接翻译"></textarea>
+                        </div>
+                    </fieldset>
                     <button is="emby-button" type="submit" class="raised button-submit block emby-button">
                         <span>Save</span>
                     </button>
                 </form>
-            </div>
         </div>
         <script type="text/javascript">
             var TemplateConfig = {
@@ -90,6 +116,11 @@
                         document.querySelector('#TmdbProxyType').value = config.TmdbProxyType;
                         document.querySelector('#TmdbProxyHost').value = config.TmdbProxyHost;
                         document.querySelector('#TmdbProxyPort').value = config.TmdbProxyPort;
+                        document.querySelector('#EnableAiTranslateCharacter').checked = config.EnableAiTranslateCharacter;
+                        document.querySelector('#AiBaseUrl').value = config.AiBaseUrl;
+                        document.querySelector('#AiApiKey').value = config.AiApiKey;
+                        document.querySelector('#AiModel').value = config.AiModel;
+                        document.querySelector('#AiTranslatePrompt').value = config.AiTranslatePrompt;
                         changeProxyDisplay();
                         Dashboard.hideLoadingMsg();
                     });
@@ -106,6 +137,11 @@
                         config.TmdbProxyType = document.querySelector('#TmdbProxyType').value;
                         config.TmdbProxyHost = document.querySelector('#TmdbProxyHost').value;
                         config.TmdbProxyPort = document.querySelector('#TmdbProxyPort').value;
+                        config.EnableAiTranslateCharacter = document.querySelector('#EnableAiTranslateCharacter').checked;
+                        config.AiBaseUrl = document.querySelector('#AiBaseUrl').value;
+                        config.AiApiKey = document.querySelector('#AiApiKey').value;
+                        config.AiModel = document.querySelector('#AiModel').value;
+                        config.AiTranslatePrompt = document.querySelector('#AiTranslatePrompt').value;
                         ApiClient.updatePluginConfiguration(TemplateConfig.pluginUniqueId, config).then(function (result) {
                             Dashboard.processPluginConfigurationUpdateResult(result);
                         });
